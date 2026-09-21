@@ -1,0 +1,215 @@
+/*
+ * abstracttileselectiontool.cpp
+ * Copyright 2017, Ketan Gupta <ketan19972010@gmail.com>
+ *
+ * This file is part of Tiled.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "abstracttileselectiontool.h"
+
+#include "brushitem.h"
+#include "changeselectedarea.h"
+#include "mapdocument.h"
+
+#include <QAction>
+#include <QActionGroup>
+#include <QApplication>
+#include <QKeyEvent>
+#include <QToolBar>
+
+using namespace Tiled;
+
+AbstractTileSelectionTool::AbstractTileSelectionTool(Id id,
+                                                     const QString &name,
+                                                     const QIcon &icon,
+                                                     const QKeySequence &shortcut,
+                                                     QObject *parent)
+    : AbstractTileTool(id, name, icon, shortcut, nullptr, parent)
+    , mSelectionMode(Replace)
+    , mDefaultMode(Replace)
+{
+    QIcon replaceIcon(QLatin1String(":images/16/selection-replace.png"));
+    QIcon addIcon(QLatin1String(":images/16/selection-add.png"));
+    QIcon subtractIcon(QLatin1String(":images/16/selection-subtract.png"));
+    QIcon intersectIcon(QLatin1String(":images/16/selection-intersect.png"));
+
+    mReplace = new QAction(this);
+    mReplace->setIcon(replaceIcon);
+    mReplace->setCheckable(true);
+    mReplace->setChecked(true);
+
+    mAdd = new QAction(this);
+    mAdd->setIcon(addIcon);
+    mAdd->setCheckable(true);
+
+    mSubtract = new QAction(this);
+    mSubtract->setIcon(subtractIcon);
+    mSubtract->setCheckable(true);
+
+    mIntersect = new QAction(this);
+    mIntersect->setIcon(intersectIcon);
+    mIntersect->setCheckable(true);
+
+    mActionGroup = new QActionGroup(this);
+    mActionGroup->addAction(mReplace);
+    mActionGroup->addAction(mAdd);
+    mActionGroup->addAction(mSubtract);
+    mActionGroup->addAction(mIntersect);
+
+    connect(mReplace, &QAction::triggered,
+            this, [this] { mSelectionMode = mDefaultMode = Replace; });
+    connect(mAdd, &QAction::triggered,
+            this, [this] { mSelectionMode = mDefaultMode = Add; });
+    connect(mSubtract, &QAction::triggered,
+            this, [this] { mSelectionMode = mDefaultMode = Subtract; });
+    connect(mIntersect, &QAction::triggered,
+            this, [this] { mSelectionMode = mDefaultMode = Intersect; });
+
+    AbstractTileSelectionTool::languageChanged();
+}
+
+void AbstractTileSelectionTool::mousePressed(QGraphicsSceneMouseEvent *event)
+{
+    const auto button = event->button();
+    const auto modifiers = event->modifiers();
+
+    if (button == Qt::LeftButton) {
+        mMouseDown = true;
+        return;
+    }
+
+    if (button == Qt::RightButton && modifiers == Qt::NoModifier) {
+        // Right mouse button cancels selection
+        if (mMouseDown) {
+            mMouseDown = false;
+            setSelectionPreview(QRegion());
+            return;
+        }
+
+        // Right mouse button clears selection
+        changeSelectedArea(QRegion());
+        return;
+    }
+
+    AbstractTileTool::mousePressed(event);
+}
+
+void AbstractTileSelectionTool::mouseReleased(QGraphicsSceneMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton && mMouseDown) {
+        mMouseDown = false;
+
+        applySelectionPreview();
+
+        // Refresh selection preview based on current tile only
+        tilePositionChanged(tilePosition());
+    }
+}
+
+void AbstractTileSelectionTool::modifiersChanged(Qt::KeyboardModifiers modifiers)
+{
+    if (modifiers == Qt::ControlModifier)
+        mSelectionMode = Subtract;
+    else if (modifiers == Qt::ShiftModifier)
+        mSelectionMode = Add;
+    else if (modifiers == (Qt::ControlModifier | Qt::ShiftModifier))
+        mSelectionMode = Intersect;
+    else
+        mSelectionMode = mDefaultMode;
+
+    switch (mSelectionMode) {
+    case Replace:   mReplace->setChecked(true); break;
+    case Add:       mAdd->setChecked(true); break;
+    case Subtract:  mSubtract->setChecked(true); break;
+    case Intersect: mIntersect->setChecked(true); break;
+    }
+}
+
+void AbstractTileSelectionTool::keyPressed(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Escape) {
+        if (mMouseDown) {
+            // Cancel the ongoing selection
+            mMouseDown = false;
+            setSelectionPreview(QRegion());
+            return;
+        }
+    }
+
+    AbstractTileTool::keyPressed(event);
+}
+
+void AbstractTileSelectionTool::languageChanged()
+{
+    mReplace->setText(tr("Replace Selection"));
+    mAdd->setText(tr("Add Selection"));
+    mSubtract->setText(tr("Subtract Selection"));
+    mIntersect->setText(tr("Intersect Selection"));
+}
+
+void AbstractTileSelectionTool::populateToolBar(QToolBar *toolBar)
+{
+    toolBar->addAction(mReplace);
+    toolBar->addAction(mAdd);
+    toolBar->addAction(mSubtract);
+    toolBar->addAction(mIntersect);
+}
+
+const QRegion &AbstractTileSelectionTool::selectionPreviewRegion() const
+{
+    return brushItem()->tileRegion();
+}
+
+void AbstractTileSelectionTool::setSelectionPreview(const QRegion &region)
+{
+    brushItem()->setTileRegion(region);
+}
+
+void AbstractTileSelectionTool::applySelectionPreview()
+{
+    MapDocument *document = mapDocument();
+    if (!document)
+        return;
+
+    auto selectedArea = document->selectedArea();
+
+    switch (mSelectionMode) {
+    case Replace:   selectedArea = selectionPreviewRegion(); break;
+    case Add:       selectedArea += selectionPreviewRegion(); break;
+    case Subtract:  selectedArea -= selectionPreviewRegion(); break;
+    case Intersect: selectedArea &= selectionPreviewRegion(); break;
+    }
+
+    changeSelectedArea(selectedArea);
+}
+
+void AbstractTileSelectionTool::changeSelectedArea(const QRegion &region)
+{
+    MapDocument *document = mapDocument();
+    if (!document || document->selectedArea() == region)
+        return;
+
+    QUndoCommand *cmd = new ChangeSelectedArea(document, region);
+    document->undoStack()->push(cmd);
+}
+
+// Override to ignore whether the current layer is a visible tile layer
+void AbstractTileSelectionTool::updateBrushVisibility()
+{
+    brushItem()->setVisible(isBrushVisible());
+}
+
+#include "moc_abstracttileselectiontool.cpp"

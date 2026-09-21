@@ -1,0 +1,23 @@
+name: "Build Manual"
+on:
+  pull_request:
+    paths:
+    - 'docs/**'
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7
+
+    - name: Build documentation
+      uses: ammaraskar/sphinx-action@8.2.3
+      with:
+        docs-folder: "docs/"
+
+    - name: Upload documentation
+      uses: actions/upload-artifact@v6
+      with:
+        name: Tiled-Manual-HTML
+        path: docs/_build/html/

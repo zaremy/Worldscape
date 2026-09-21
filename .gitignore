@@ -1,0 +1,66 @@
+# General build artifacts
+default/
+
+# clangd cache
+.cache/
+compile_commands.json
+
+# Mac stuff
+*.DS_Store
+
+# Qt Creator
+*.user*
+*.creator.*
+*.autosave
+build/ 
+
+# Visual Studio
+.vscode/
+*.sln
+*.suo
+*.vcxproj
+*.vcxproj.*
+*.ncb
+*.sdf
+*.opensdf
+
+# CLion / JetBrains IDEs
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Ronn html outputs
+man/*.1.html
+
+# Doxygen (writes its HTML output to ./html, see Doxyfile: HTML_OUTPUT)
+html/
+
+# Sphinx
+docs/.venv/
+*.mo
+docs/_build/html/
+docs/_build/doctrees/
+# Only the .pot files here are source; ignore the other output the gettext
+# builder writes alongside them (static asset dirs, etc.).
+docs/_build/gettext/*
+!docs/_build/gettext/*.pot
+
+# tsdoc generation results
+docs/scripting-doc/out/
+docs/scripting-doc/node_modules
+
+# Work-in-progress worktrees
+wip/
+
+# Java stuff
+util/java/tmxviewer-java/target
+util/java/libtiled-java/target
+/util/java/target/
+
+# Linux perf/debugging
+gmon.out
+
+# Vim files
+*.swp
+*.swo

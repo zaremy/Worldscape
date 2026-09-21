@@ -1,0 +1,138 @@
+/*
+ * abstractworldtool.h
+ * Copyright 2019, Nils Kuebler <nils-kuebler@web.de>
+ *
+ * This file is part of Tiled.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#pragma once
+
+#include "abstracttool.h"
+
+#include <array>
+#include <memory>
+
+class QAction;
+class QGraphicsItem;
+class QMenu;
+
+namespace Tiled {
+
+class World;
+
+class SelectionRectangle;
+class WorldDocument;
+
+// The eight resize handles, in the order they are placed by
+// AbstractWorldTool::setSelectionScreenRect.
+enum ResizeHandlePosition {
+    TopLeftHandle,
+    TopHandle,
+    TopRightHandle,
+    LeftHandle,
+    RightHandle,
+    BottomLeftHandle,
+    BottomHandle,
+    BottomRightHandle,
+    HandleCount,
+};
+
+// The resize cursor shape for a given resize handle.
+Qt::CursorShape cursorForHandle(int handle);
+
+/**
+ * A convenient base class for tools that work on object layers. Implements
+ * the standard context menu.
+ */
+class AbstractWorldTool : public AbstractTool
+{
+    Q_OBJECT
+
+public:
+    /**
+     * Constructs an abstract object tool with the given \a name and \a icon.
+     */
+    AbstractWorldTool(Id id,
+                      const QString &name,
+                      const QIcon &icon,
+                      const QKeySequence &shortcut,
+                      QObject *parent = nullptr);
+    ~AbstractWorldTool() override;
+
+    void activate(MapScene *scene) override;
+    void deactivate(MapScene *scene) override;
+
+    void mouseLeft() override;
+    void mouseMoved(const QPointF &pos, Qt::KeyboardModifiers modifiers) override;
+    void mousePressed(QGraphicsSceneMouseEvent *event) override;
+
+    void languageChanged() override;
+
+    QUndoStack *undoStack() override;
+    void populateToolBar(QToolBar*) override;
+
+protected:
+    /**
+     * Overridden to only enable this tool when the currently has a world
+     * loaded.
+     */
+    void updateEnabledState() override;
+
+    void mapDocumentChanged(MapDocument *oldDocument,
+                            MapDocument *newDocument) override;
+
+    MapDocument *mapAt(const QPointF &pos) const;
+
+    void addAnotherMapToWorldAtCenter();
+    void addAnotherMapToWorld(QPoint insertPos);
+    void createWorldForCurrentMap();
+    void removeCurrentMapFromWorld();
+    void removeFromWorld(WorldDocument *worldDocument, const QString &mapFileName);
+    void addToWorld(WorldDocument *worldDocument);
+
+    QSize snapSize(MapDocument *document) const;
+    QPoint snapPoint(QPoint point, MapDocument *document) const;
+
+    void setTargetMap(MapDocument *mapDocument);
+    MapDocument *targetMap() const { return mTargetMap; }
+    void updateSelectionRectangle();
+    void setSelectionScreenRect(const QRect &rect);
+    int resizeHandleNear(const QPointF &scenePos, MapDocument *&mapDocument) const;
+
+    bool mapCanBeMoved(MapDocument *mapDocument) const;
+    bool mapCanBeResized(MapDocument *mapDocument) const;
+    QRect mapRect(MapDocument *mapDocument) const;
+    WorldDocument *worldForMap(MapDocument *mapDocument) const;
+
+    void showContextMenu(QGraphicsSceneMouseEvent *);
+
+private:
+    void languageChangedImpl();
+
+    void populateAddToWorldMenu(QMenu &menu);
+
+    MapDocument *mTargetMap = nullptr;
+
+    QAction *mNewWorldForMapAction;
+    QAction *mAddAnotherMapToWorldAction;
+    QAction *mAddMapToWorldAction;
+    QAction *mRemoveMapFromWorldAction;
+
+    std::unique_ptr<SelectionRectangle> mSelectionRectangle;
+    std::array<std::unique_ptr<QGraphicsItem>, HandleCount> mResizeHandles;
+};
+
+} // namespace Tiled
