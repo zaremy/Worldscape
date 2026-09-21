@@ -56,6 +56,7 @@ wip/
 # Project-local links to assets owned by external game repositories
 projects/*/.local/
 projects/*/industrial/*-working.tmx
+projects/*/*.tiled-session
 
 # Java stuff
 util/java/tmxviewer-java/target
