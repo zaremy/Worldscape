@@ -53,6 +53,10 @@ docs/scripting-doc/node_modules
 # Work-in-progress worktrees
 wip/
 
+# Project-local links to assets owned by external game repositories
+projects/*/.local/
+projects/*/industrial/*-working.tmx
+
 # Java stuff
 util/java/tmxviewer-java/target
 util/java/libtiled-java/target

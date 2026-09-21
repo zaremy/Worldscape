@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "ownership": "Four Crowns source repository; Worldscape creates ignored symlinks and does not copy these pixels",
+  "references": [
+    {
+      "id": "industrial-layout-source",
+      "source": "experiments/spritesheet_pipeline/khorinis-district-layout-v2.json",
+      "localName": "industrial-layout.json",
+      "sha256": "032d3592580d8f2d9a1e4137139044069795ed4ab8b8f257563898cb342ad25c",
+      "status": "authoritative-planning-source",
+      "note": "Exact source used by the Four Crowns blockout renderer."
+    },
+    {
+      "id": "industrial-mine-neutral",
+      "source": "conquest-ui/public/assets/spritesheet-experiments/mine-loading-v3/neutral-whole.png",
+      "localName": "industrial-mine-neutral.png",
+      "sha256": "0deab29672837704cba4034f7bea2156e486d513ae42b4081a3fc739ddeb16b7",
+      "width": 512,
+      "height": 512,
+      "status": "linked-four-crowns-art"
+    },
+    {
+      "id": "industrial-quarry-neutral",
+      "source": "conquest-ui/public/assets/spritesheet-experiments/district-layers-v1/quarry-neutral.png",
+      "localName": "industrial-quarry-neutral.png",
+      "sha256": "2949f5d49fa7c8af6a69fa1ad8aa3a572b08a5c7808d0283813907bc6ad6bef6",
+      "width": 512,
+      "height": 512,
+      "status": "linked-four-crowns-art"
+    },
+    {
+      "id": "industrial-logging-neutral",
+      "source": "conquest-ui/public/assets/spritesheet-experiments/district-layers-v1/logging-neutral.png",
+      "localName": "industrial-logging-neutral.png",
+      "sha256": "08cfef0e44fac4eefecb4574cc2165c00883fda08fc6652d345089828a1c7ce9",
+      "width": 512,
+      "height": 512,
+      "status": "linked-four-crowns-art"
+    },
+    {
+      "id": "industrial-foundry-neutral",
+      "source": "conquest-ui/public/assets/spritesheet-experiments/district-layers-v1/foundry-neutral.png",
+      "localName": "industrial-foundry-neutral.png",
+      "sha256": "254e7e8948c3e2f2dcdf36281830c84feb31a430425b95b0184f54fa45d378d3",
+      "width": 512,
+      "height": 512,
+      "status": "linked-four-crowns-art"
+    },
+    {
+      "id": "industrial-cottage-neutral",
+      "source": "conquest-ui/public/assets/spritesheet-experiments/cottage-layers-v2/building-neutral.png",
+      "localName": "industrial-cottage-neutral.png",
+      "sha256": "67b0ebfb99d1033b8b6ad19fd6a1bc52b7553e877000a540e29cce6c2cc14ccc",
+      "width": 1274,
+      "height": 742,
+      "status": "linked-four-crowns-art"
+    },
+    {
+      "id": "industrial-district-manifest",
+      "source": "conquest-ui/public/assets/spritesheet-experiments/district-layers-v1/manifest.json",
+      "localName": "industrial-district-manifest.json",
+      "sha256": "b6120a18002cdef2b7c3795fff9457fc0eacbd9017352dc2a5f56122c072d37e",
+      "status": "authoritative-registration-source"
+    },
+    {
+      "id": "industrial-mine-manifest",
+      "source": "conquest-ui/public/assets/spritesheet-experiments/mine-loading-v3/manifest.json",
+      "localName": "industrial-mine-manifest.json",
+      "sha256": "65996aa9669b87d8187bf08df95fe87b4b2e24761cbff9de65ccf8fa0e03a359",
+      "status": "authoritative-registration-source"
+    },
+    {
+      "id": "industrial-cottage-manifest",
+      "source": "conquest-ui/public/assets/spritesheet-experiments/cottage-layers-v2/manifest.json",
+      "localName": "industrial-cottage-manifest.json",
+      "sha256": "d2b88aa2f7766ef80b062d37e746a8a3bcc23730ec19b50cf21073062a1aaf0c",
+      "status": "authoritative-registration-source"
+    }
+  ]
+}
